@@ -1,0 +1,51 @@
+version: "3"
+
+vars:
+  SIMULATE: true
+
+  stow-packages:
+    - src: fish
+      folding: true
+    - src: git
+      folding: true
+    - src: vim
+      folding: true
+    - src: vscode
+      folding: true
+    - src: wallpaper
+      folding: true
+    - src: wezterm
+      folding: true
+  clone-repos:
+    - remote: git@github.com:ic-it/dwm.git
+      dst_dir: ~/dwm
+
+tasks:
+  setup:
+    silent: true
+    desc: Setup new IC-IT's Dotfiles. (stow dotfiles, install packages, clone dwm, etc.)
+    cmds:
+      - defer: { task: stash-current }
+      - echo "Setting up IC-IT's Dotfiles"
+      - echo "Stowing dotfiles..."
+      - for: { var: stow-packages }
+        cmd: echo "Stowing {{.src}}..." &&
+          stow {{ if .SIMULATE }}--simulate{{ end }} {{ if .ITEM.folding }}{{ else }}--no-folding{{ end }}
+          --adopt
+          --verbose
+          --target=~ {{.ITEM.src}}
+      - echo "Clone repositories..."
+      - for: { var: clone-repos }
+        cmd:
+          echo "Cloning {{.ITEM.remote}} to {{.ITEM.dst_dir}}..." && {{ if .SIMULATE }}false && {{ end }}
+          git clone {{ if .SIMULATE }}--no-checkout{{ end }} {{.ITEM.remote}} {{.ITEM.dst_dir}} {{ if .SIMULATE }} || true{{ end }}
+
+  stash-current:
+    silent: true
+    desc: Stash current changes
+    internal: true
+    vars:
+      stashmsg: "Stashed by ic-it's dotfiles installer ($(date))"
+    cmds:
+      - echo "Stashing current changes..."
+      - git stash --all --include-untracked --message="{{.stashmsg}}"

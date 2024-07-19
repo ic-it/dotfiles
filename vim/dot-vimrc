@@ -1,0 +1,13 @@
+nmap <silent> <leader>y "+y
+vmap <silent> <leader>y "+y
+nmap <silent> <leader>p "+p
+vmap <silent> <leader>p "+p
+nmap <silent> <leader>d "+d
+vmap <silent> <leader>d "+d
+nmap <silent> <leader>dd "+dd
+vmap <silent> <leader>dd "+dd
+
+nmap <C-H> :bn<CR>
+nmap <tab> :bn<CR>
+
+
