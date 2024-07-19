@@ -29,7 +29,7 @@ tasks:
       - echo "Setting up IC-IT's Dotfiles"
       - echo "Stowing dotfiles..."
       - for: { var: stow-packages }
-        cmd: echo "Stowing {{.src}}..." &&
+        cmd: echo "Stowing {{.ITEM.src}}..." &&
           stow {{ if .SIMULATE }}--simulate{{ end }} {{ if .ITEM.folding }}{{ else }}--no-folding{{ end }}
           --adopt
           --verbose
