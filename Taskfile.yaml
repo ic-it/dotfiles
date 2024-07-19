@@ -33,6 +33,7 @@ tasks:
           stow {{ if .SIMULATE }}--simulate{{ end }} {{ if .ITEM.folding }}{{ else }}--no-folding{{ end }}
           --adopt
           --verbose
+          --dotfiles
           --target=~ {{.ITEM.src}}
       - echo "Clone repositories..."
       - for: { var: clone-repos }
