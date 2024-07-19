@@ -12,7 +12,7 @@ vars:
       folding: true
     - src: vscode
       folding: true
-    - src: wallpaper
+    - src: wallpapers
       folding: true
     - src: wezterm
       folding: true
