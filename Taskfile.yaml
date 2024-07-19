@@ -38,7 +38,7 @@ tasks:
       - echo "Clone repositories..."
       - for: { var: clone-repos }
         cmd:
-          echo "Cloning {{.ITEM.remote}} to {{.ITEM.dst_dir}}..." && {{ if .SIMULATE }}false && {{ end }}
+          echo "Cloning {{.ITEM.remote}} to {{.ITEM.dst_dir}}..." && {{ if .SIMULATE }}echo "Simulating..." && false && {{ end }}
           git clone {{ if .SIMULATE }}--no-checkout{{ end }} {{.ITEM.remote}} {{.ITEM.dst_dir}} {{ if .SIMULATE }} || true{{ end }}
 
   stash-current:
