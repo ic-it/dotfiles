@@ -34,6 +34,7 @@ tasks:
           --adopt
           --verbose
           --dotfiles
+          --override=.*
           --target=$HOME {{.ITEM.src}}
       - echo "Clone repositories..."
       - for: { var: clone-repos }
