@@ -35,6 +35,7 @@ tasks:
           --verbose
           --dotfiles
           --override=.*
+          --defer=.gitkeep
           --target=$HOME {{.ITEM.src}}
       - echo "Clone repositories..."
       - for: { var: clone-repos }
