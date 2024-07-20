@@ -60,8 +60,7 @@ tasks:
       - for: { var: stow-packages }
         cmd: |
           echo "Unstowing {{.ITEM.src}}..." &&
-          {{ if .SIMULATE }}echo "Simulating..." && false &&{{ end }}
-          stow --delete --verbose --dotfiles --target=$HOME {{.ITEM.src}} {{ if .SIMULATE }} || true{{ end }}
+          stow {{ if .SIMULATE }}--simulate{{ end }} --delete --verbose --dotfiles --target=$HOME {{.ITEM.src}}
       - echo "Remove repositories..."
       - for: { var: clone-repos }
         cmd: |
