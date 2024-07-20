@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  SIMULATE: false
+  SIMULATE: true
 
   stow-packages:
     - src: fish
@@ -19,9 +19,8 @@ vars:
     - src: keepassxc
       folding: true
 
-  root-stow-packages:
+  root-packages:
     - src: nixos
-      folding: true
 
   clone-repos:
     - remote: git@github.com:ic-it/dwm.git
@@ -45,8 +44,10 @@ tasks:
           --target=$HOME {{.ITEM.src}}
       - echo "Clone repositories..."
       - for: { var: clone-repos }
-        cmd:
-          if [ -d {{.ITEM.dst_dir}} ]; then echo "Repository {{.ITEM.dst_dir}} already exists. Skipping..."; exit 0; fi;
+        cmd: |
+          if [ -d {{.ITEM.dst_dir}} ]; then 
+            echo "Repository {{.ITEM.dst_dir}} already exists. Skipping..."; exit 0; 
+          fi;
           echo "Cloning {{.ITEM.remote}} to {{.ITEM.dst_dir}}..." && {{ if .SIMULATE }}echo "Simulating..." && false && {{ end }}
           git clone {{ if .SIMULATE }}--no-checkout{{ end }} {{.ITEM.remote}} {{.ITEM.dst_dir}} {{ if .SIMULATE }} || true{{ end }}
 
@@ -57,28 +58,30 @@ tasks:
       - echo "Cleaning up IC-IT's Dotfiles"
       - echo "Unstowing dotfiles..."
       - for: { var: stow-packages }
-        cmd: echo "Unstowing {{.ITEM.src}}..." &&
-          stow --delete --verbose --dotfiles --target=$HOME {{.ITEM.src}}
+        cmd: |
+          echo "Unstowing {{.ITEM.src}}..." &&
+          {{ if .SIMULATE }}echo "Simulating..." && false &&{{ end }}
+          stow --delete --verbose --dotfiles --target=$HOME {{.ITEM.src}} {{ if .SIMULATE }} || true{{ end }}
       - echo "Remove repositories..."
       - for: { var: clone-repos }
-        cmd: echo "Removing {{.ITEM.dst_dir}}..." && rm -rf {{.ITEM.dst_dir}}
+        cmd: |
+          echo "Removing {{.ITEM.dst_dir}}..." && 
+          {{ if .SIMULATE }}echo "Simulating..." && false &&{{ end }}
+          rm -rf {{.ITEM.dst_dir}} {{ if .SIMULATE }} || true{{ end }}
 
   setup-root:
     silent: true
     desc: Setup root dotfiles
     cmds:
-      - if [ "$(id -u)" -ne 0 ]; then echo "Please run this script as root."; exit 1; fi
       - defer: { task: stash-current }
+      - |
+        {{ if .SIMULATE }}{{ else }} if [ "$(id -u)" -ne 0 ]; then echo "Please run this script as root."; exit 1; fi {{ end }}
       - echo "Setting up root dotfiles..."
-      - echo "Stowing root dotfiles..."
-      - for: { var: root-stow-packages }
-        cmd: echo "Stowing {{.ITEM.src}}..." &&
-          sudo stow {{ if .SIMULATE }}--simulate{{ end }} {{ if .ITEM.folding }}{{ else }}--no-folding{{ end }}
-          --adopt
-          --verbose
-          --dotfiles
-          --override=.*
-          --target=/ {{.ITEM.src}}
+      - echo "Rsycing root dotfiles..."
+      - for: { var: root-packages }
+        cmd: echo "Rsyncing {{.ITEM.src}}..." &&
+          rsync {{ if .SIMULATE }} -n {{ end }}
+          -avI {{.ITEM.src}}/ /
 
   stash-current:
     silent: true
@@ -88,4 +91,5 @@ tasks:
       stashmsg: "Stashed by ic-it's dotfiles installer ($(date))"
     cmds:
       - echo "Stashing current changes..."
-      - git stash --all --include-untracked --message="{{.stashmsg}}"
+      - |
+        {{ if .SIMULATE }}echo "Simulating..."{{ else }} git stash --all --include-untracked --message="{{.stashmsg}}" {{ end }}
