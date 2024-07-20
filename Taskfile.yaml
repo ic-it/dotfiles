@@ -51,3 +51,16 @@ tasks:
     cmds:
       - echo "Stashing current changes..."
       - git stash --all --include-untracked --message="{{.stashmsg}}"
+
+  clean:
+    silent: true
+    desc: Clean up IC-IT's Dotfiles. (unstow dotfiles, remove packages, etc.)
+    cmds:
+      - echo "Cleaning up IC-IT's Dotfiles"
+      - echo "Unstowing dotfiles..."
+      - for: { var: stow-packages }
+        cmd: echo "Unstowing {{.ITEM.src}}..." &&
+          stow --delete --verbose --dotfiles --target=$HOME {{.ITEM.src}}
+      - echo "Remove repositories..."
+      - for: { var: clone-repos }
+        cmd: echo "Removing {{.ITEM.dst_dir}}..." && rm -rf {{.ITEM.dst_dir}}
