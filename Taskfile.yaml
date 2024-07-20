@@ -18,6 +18,11 @@ vars:
       folding: true
     - src: keepassxc
       folding: true
+
+  root-stow-packages:
+    - src: nixos
+      folding: true
+
   clone-repos:
     - remote: git@github.com:ic-it/dwm.git
       dst_dir: ~/dwm
@@ -45,16 +50,6 @@ tasks:
           echo "Cloning {{.ITEM.remote}} to {{.ITEM.dst_dir}}..." && {{ if .SIMULATE }}echo "Simulating..." && false && {{ end }}
           git clone {{ if .SIMULATE }}--no-checkout{{ end }} {{.ITEM.remote}} {{.ITEM.dst_dir}} {{ if .SIMULATE }} || true{{ end }}
 
-  stash-current:
-    silent: true
-    desc: Stash current changes
-    internal: true
-    vars:
-      stashmsg: "Stashed by ic-it's dotfiles installer ($(date))"
-    cmds:
-      - echo "Stashing current changes..."
-      - git stash --all --include-untracked --message="{{.stashmsg}}"
-
   clean:
     silent: true
     desc: Clean up IC-IT's Dotfiles. (unstow dotfiles, remove packages, etc.)
@@ -67,3 +62,30 @@ tasks:
       - echo "Remove repositories..."
       - for: { var: clone-repos }
         cmd: echo "Removing {{.ITEM.dst_dir}}..." && rm -rf {{.ITEM.dst_dir}}
+
+  setup-root:
+    silent: true
+    desc: Setup root dotfiles
+    cmds:
+      - if [ "$(id -u)" -ne 0 ]; then echo "Please run this script as root."; exit 1; fi
+      - defer: { task: stash-current }
+      - echo "Setting up root dotfiles..."
+      - echo "Stowing root dotfiles..."
+      - for: { var: root-stow-packages }
+        cmd: echo "Stowing {{.ITEM.src}}..." &&
+          sudo stow {{ if .SIMULATE }}--simulate{{ end }} {{ if .ITEM.folding }}{{ else }}--no-folding{{ end }}
+          --adopt
+          --verbose
+          --dotfiles
+          --override=.*
+          --target=/ {{.ITEM.src}}
+
+  stash-current:
+    silent: true
+    desc: Stash current changes
+    internal: true
+    vars:
+      stashmsg: "Stashed by ic-it's dotfiles installer ($(date))"
+    cmds:
+      - echo "Stashing current changes..."
+      - git stash --all --include-untracked --message="{{.stashmsg}}"

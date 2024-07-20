@@ -1,7 +1,7 @@
 [user]
 	name = Illia Chaban
 	email = ic-it@mail.com
-	signingkey = E5C07CC602D8C9B0B7034631C55049748888D6CB
+    # signingkey = E5C07CC602D8C9B0B7034631C55049748888D6CB
 [init]
 	defaultBranch = main
 [credential]
@@ -11,6 +11,6 @@
 [url "git@gitlab.com:"]
 	insteadOf = https://gitlab.com/
 [commit]
-	gpgSign = true
+    #gpgSign = true
 [submodule]
 	recurse = true
