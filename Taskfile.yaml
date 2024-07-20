@@ -16,6 +16,8 @@ vars:
       folding: true
     - src: wezterm
       folding: true
+    - src: keepassxc
+      folding: true
   clone-repos:
     - remote: git@github.com:ic-it/dwm.git
       dst_dir: ~/dwm
